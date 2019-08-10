@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import random
 
 def draw_function(x,y, title, title_x, title_y):
@@ -10,15 +11,15 @@ def draw_function(x,y, title, title_x, title_y):
     plt.pause(0.0001)
 
 def encoder(vector, dt):
-        return vector[0] + (random.random()*0.01)
+        return vector[0] + (np.random.normal(0,1,1))
 
 def update_vector(vector, voltage, dt):
     j = 0.00007753 # moment of inertia [kg*m*m]
     R = 0.09 #resistance of cim motor
     kv = 46.513 # ratio between voltage and angular velocity
-    I = (voltage/R) + (vector[1]/(kv*R)) # calculated from v = R*I + (omega/kv)
+    I = (voltage/R) - (vector[1]/(kv*R)) # calculated from v = R*I + (omega/kv)
     kt = 0.018 # ratio between I and torque
-    torque = ((kt/R)*voltage) - ((kt/(kv*R))*vector[1]) #calculated from torque = I*kt
+    torque = I * kt #calculated from torque = I*kt
     vector[2] = torque / j # calculated from j = torque / a
     vector[1] = vector[1] + (vector[2]*dt)
     vector[0] = vector[0] + (vector[1]*dt)
