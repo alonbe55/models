@@ -2,12 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-def draw_function(x,y, title, title_x, title_y):
+def draw_function(x,y, title, title_x, title_y, x1 = None, y1 = None):
     plt.plot(x, y, 'bo')
+    if x1 != None :
+        plt.plot(x1,y1,'ro')
     plt.title(title)
     plt.xlabel(title_x)
     plt.ylabel(title_y)
-    plt.draw()
+    #plt.draw()
     plt.pause(0.0001)
 
 def encoder(vector, dt):
@@ -39,12 +41,17 @@ def main():
     vector = [0.0,0.0, 0.0] #[angle, angular velocity, angular acceleration]
     omega_prev = 0
     acceleration_prev = 0
+    encoder_value = 0
+    encoder_value_prev = 0
     while current_time < 5:
+        encoder_value = encoder(vector, dt)
         vector = update_vector(vector, 12, dt)
         #draw_function(current_time, vector[1], 'v/s graph', 'time [s]', 'angular velocity [m/s]')
         #draw_function(current_time, vector[0], 'x/s graph', 'time [s]', 'angle[radians]')
-        draw_function(current_time, encoder(vector, dt), 'enc/s graph', 'time [s]', 'encoder[radians]')
+        #draw_function(current_time, encoder_value, 'enc/s graph', 'time [s]', 'encoder[radians]')
+        draw_function(current_time, (encoder_value-encoder_value_prev)/dt, 'omega/s graph', 'time [s]', 'omega[radians/s]', current_time, vector[1])
         #draw_function(current_time, vector[2], 'a/s graph', 'time [s]', 'acceleration [radians/(s*s)]')
+        encoder_value_prev = encoder_value
         current_time = update_time(current_time, dt)
 
 
