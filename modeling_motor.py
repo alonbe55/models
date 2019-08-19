@@ -33,7 +33,7 @@ def update_vector(vector, voltage, dt):
     #acceleration_prev = vector[2]
     return vector
 
-def update_vector_hat(vector_hat, voltage, dt):
+def update_vector_hat(vector_hat, vector, voltage, dt):
     j = 0.00007753 # moment of inertia [kg*m*m]
     R = 0.09 #resistance of cim motor
     kv = 46.513 # ratio between voltage and angular velocity
@@ -41,9 +41,9 @@ def update_vector_hat(vector_hat, voltage, dt):
     kt = 0.018 # ratio between I and torque
     torque = I * kt #calculated from torque = I*kt
     angular_acceleration = torque / j # calculated from j = torque / a
-    l1 = 0
-    l2 = 0
-    error = encoder(vector_hat) - vector_hat[0]
+    l1 = 100 # correct value 0.5
+    l2 = 100
+    error = encoder(vector) - vector_hat[0]
     vector_hat[0] = vector_hat[0] + (vector_hat[1]*dt) + (error*l1)
     vector_hat[1] = vector_hat[1] + (angular_acceleration*dt) + (error*l2)
     return vector_hat
@@ -64,7 +64,7 @@ def main():
     while current_time < 5:
         encoder_value = encoder(vector)
         vector = update_vector(vector, 120, dt)
-        vector_hat = update_vector_hat(vector_hat, 12, dt)
+        vector_hat = update_vector_hat(vector_hat, vector, 12, dt)
         #draw_function(current_time, vector[1], 'omega/s graph', 'time [s]', 'angular velocity [radians/s]')
         #draw_function(current_time, vector[0], 'x/s graph', 'time [s]', 'angle[radians]')
         #draw_function(current_time, encoder_value, 'enc/s graph', 'time [s]', 'encoder[radians]')
