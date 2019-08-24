@@ -23,14 +23,14 @@ def update_vector(vector, voltage, dt):
     kv = 46.513 # ratio between voltage and angular velocity
     I = (voltage/R) - (vector[1]/(kv*R)) # calculated from v = R*I + (omega/kv)
     kt = 0.018 # ratio between I and torque
+    A = [[1, dt], [0, 1-(((kt*dt)/(kv*R))/j)]]
+    B = [0, (kt*dt)/(R*j)]
     torque = I * kt #calculated from torque = I*kt
     angular_acceleration = (torque / j) + np.random.normal(0,0.5,1) # calculated from j = torque / a
-    vector[1] = vector[1] + (angular_acceleration*dt)
-    vector[0] = vector[0] + (vector[1]*dt)
-    #vector[1] = vector[1] + (((acceleration + acceleration_prev)*dt)/2)
-    #vector[0] = vector[0] + (((vector[1] + omega_prev)*dt)/2)
-    #omega_prev = vector[1]
-    #acceleration_prev = vector[2]
+    #vector[1] = vector[1] + (angular_acceleration*dt)
+    #vector[0] = vector[0] + (vector[1]*dt)
+    vector[1] = (A[1][1]*vector[1]) + (B[1]*voltage)
+    vector[0] = (A[0][0]*vector[0]) + (A[0][1]*vector[1]) + (B[0]*voltage)
     return vector
 
 def update_vector_hat(vector_hat, vector, voltage, dt):
@@ -41,8 +41,8 @@ def update_vector_hat(vector_hat, vector, voltage, dt):
     kt = 0.018 # ratio between I and torque
     torque = I * kt #calculated from torque = I*kt
     angular_acceleration = torque / j # calculated from j = torque / a
-    l1 = 100 # correct value 0.5
-    l2 = 100
+    l1 = 1 # correct value 0
+    l2 = 0 # correct value 10
     error = encoder(vector) - vector_hat[0]
     vector_hat[0] = vector_hat[0] + (vector_hat[1]*dt) + (error*l1)
     vector_hat[1] = vector_hat[1] + (angular_acceleration*dt) + (error*l2)
@@ -69,7 +69,8 @@ def main():
         #draw_function(current_time, vector[0], 'x/s graph', 'time [s]', 'angle[radians]')
         #draw_function(current_time, encoder_value, 'enc/s graph', 'time [s]', 'encoder[radians]')
         #draw_function(current_time, (encoder_value-encoder_value_prev)/dt, 'omega/s graph', 'time [s]', 'angular velocity[radians/s]', current_time, vector[1])
-        draw_function(current_time, vector[1], 'combined omega/s graph', 'time [s]', 'angular velocity [radians/s]', current_time, (encoder_value-encoder_value_prev)/dt, current_time, vector_hat[1])
+        #draw_function(current_time, vector[1], 'combined omega/s graph', 'time [s]', 'angular velocity [radians/s]', current_time, (encoder_value-encoder_value_prev)/dt, current_time, vector_hat[1])
+        draw_function(current_time, vector[0], 'x/s graph', 'time [s]', 'angle[radians]', current_time, vector_hat[0])
         encoder_value_prev = encoder_value
         current_time = update_time(current_time, dt)
 
