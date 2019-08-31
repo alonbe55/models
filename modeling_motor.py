@@ -17,10 +17,14 @@ def encoder(vector, C):
         return C.dot(vector) + (np.random.normal(0,1,1))
 
 def build_model(voltage_measurement, dt, j, stall_current, stall_torque, free_omega, free_current):
+    # voltage_measurement is the voltage applied on the motor during the measurements of stall_torque, stall_current....
     R = float(voltage_measurement) / float(stall_current) # calculated from v = R*I + (omega/kv) when omega=0
     Kv = free_omega / (voltage_measurement-(R*free_current)) # calculated from v = R*I + (omega/kv)
     Kt = stall_torque / stall_current # ratio between I and torque
-    return (np.array([(1, dt), (0, 1-(((Kt*dt)/(Kv*R))/j))]),np.array([[0] , [(Kt*dt)/(R*j)]]).reshape((2,1)),np.array((1,0)))
+    A = np.array([(1, dt), (0, 1-(((Kt*dt)/(Kv*R))/j))])
+    B = np.array([[0] , [(Kt*dt)/(R*j)]])
+    C = np.array((1,0))
+    return (A,B,C)
 
 def update_vector(vector, voltage, dt, system_matrices):
     (A,B,C) = system_matrices
@@ -29,7 +33,6 @@ def update_vector(vector, voltage, dt, system_matrices):
 
 def update_vector_hat(vector_hat, vector, voltage, dt, system_matrices):
     l = np.array([[0], [10]]) #l1,l2
-    l.reshape((2,1))
     error = encoder(vector, system_matrices[2]) - (system_matrices[2].dot(vector_hat))
     error = float(error)
     (A,B,C) = system_matrices
